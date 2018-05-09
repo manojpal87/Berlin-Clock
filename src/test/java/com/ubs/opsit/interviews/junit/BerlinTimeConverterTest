@@ -1,0 +1,81 @@
+package com.ubs.opsit.interviews.junit;
+
+import org.junit.Test;
+
+import com.ubs.opsit.interviews.BerlinTimeConverter;
+import com.ubs.opsit.interviews.TimeConverter;
+
+import static junit.framework.Assert.*;
+
+@SuppressWarnings("deprecation")
+public final class BerlinTimeConverterTest {
+
+	private TimeConverter timeConverter = new BerlinTimeConverter();
+	private static final String LINE_SEPERATOR = "\n";
+
+	@Test
+	public void testMidnight() {
+
+		String aTime = "00:00:00";
+		String expected = "Y" + LINE_SEPERATOR + "0000" + LINE_SEPERATOR + "0000" + LINE_SEPERATOR + "00000000000"
+				+ LINE_SEPERATOR + "0000";
+
+		assertEquals(expected, timeConverter.convertTime(aTime));
+	}
+
+	@Test
+	public void testMiddleOfTheAfternoon() {
+
+		String aTime = "13:17:01";
+		String expected = "0" + LINE_SEPERATOR + "RR00" + LINE_SEPERATOR + "RRR0" + LINE_SEPERATOR + "YYR00000000"
+				+ LINE_SEPERATOR + "YY00";
+
+		assertEquals(expected, timeConverter.convertTime(aTime));
+	}
+
+	@Test
+	public void testJustBeforeMidnight() {
+
+		String aTime = "23:59:59";
+		String expected = "0" + LINE_SEPERATOR + "RRRR" + LINE_SEPERATOR + "RRR0" + LINE_SEPERATOR + "YYRYYRYYRYY"
+				+ LINE_SEPERATOR + "YYYY";
+
+		timeConverter.convertTime(aTime);
+	}
+
+	@Test
+	public void testExactMidnight() {
+		String aTime = "24:00:00";
+		String expected = "Y" + LINE_SEPERATOR + "RRRR" + LINE_SEPERATOR + "RRRR" + LINE_SEPERATOR + "00000000000"
+				+ LINE_SEPERATOR + "0000";
+
+		timeConverter.convertTime(aTime);
+	}
+
+	/***** Negative test case ************/
+
+	@Test(expected = IllegalArgumentException.class)
+	public void testInvalidHours() {
+		timeConverter.convertTime("25:00:00");
+	}
+
+	@Test(expected = IllegalArgumentException.class)
+	public void testInvalidMinutes() {
+		timeConverter.convertTime("00:80:00");
+	}
+
+	@Test(expected = IllegalArgumentException.class)
+	public void testInvalidSeconds() {
+		timeConverter.convertTime("00:00:90");
+	}
+
+	@Test(expected = IllegalArgumentException.class)
+	public void testNullString() {
+		timeConverter.convertTime(null);
+	}
+
+	@Test(expected = IllegalArgumentException.class)
+	public void testEmptyString() {
+		timeConverter.convertTime("");
+	}
+}
