@@ -1,0 +1,116 @@
+package com.ubs.opsit.interviews;
+
+/**
+ * This class is a representation of a Berlin Clock.
+ * 
+ * @author Manoj
+ *
+ */
+public class BerlinTimeConverter implements TimeConverter {
+
+	private static final String LINE_SEPERATOR = "\n";
+	private int hoursTime;
+	private int minutesTime;
+	private int secondsTimes;
+
+	@Override
+	public String convertTime(String aTime) {
+		validateInputTime(aTime);
+		return processTime();
+	}
+
+	private void validateInputTime(String inputTime) {
+		if (inputTime == null)
+			throw new IllegalArgumentException("Input argument cannot be null");
+
+		String[] times = inputTime.split(":");
+
+		if (times.length != 3)
+			throw new IllegalArgumentException("Input format is not correct. It should be in HH:MM:SS format.");
+
+		try {
+			hoursTime = Integer.parseInt(times[0]);
+			minutesTime = Integer.parseInt(times[1]);
+			secondsTimes = Integer.parseInt(times[2]);
+		} catch (NumberFormatException e) {
+			throw new IllegalArgumentException("Input time values must be numeric.");
+		}
+
+		if (hoursTime < 0 || hoursTime > 24)
+			throw new IllegalArgumentException("Invalid hourse range. Should be in between 0 to 24");
+		if (minutesTime < 0 || minutesTime > 59)
+			throw new IllegalArgumentException("Invalid minutes range. Should be in between 0 to 59");
+		if (secondsTimes < 0 || secondsTimes > 59)
+			throw new IllegalArgumentException("Invalid seconds range. Should be in between 0 to 59");
+	}
+
+	private String processTime() {
+		return processSeconds(secondsTimes) + processHours(hoursTime) + processMinutes(minutesTime);
+	}
+
+	private String processSeconds(int seconds) {
+		String secondLine = (seconds % 2 == 0) ? "Y" : "0";
+		return secondLine + LINE_SEPERATOR;
+	}
+
+	private String processHours(int hours) {
+		String hourseLine1 = "";
+		String hourseLine2 = "";
+		int quotient = hours / 5;
+		int remainder = hours % 5;
+		while (quotient != 0) {
+			hourseLine1 = hourseLine1 + "R";
+			quotient--;
+		}
+		hourseLine1 = addRemainingZeros(hourseLine1, 4);
+
+		while (remainder != 0) {
+			hourseLine2 = hourseLine2 + "R";
+			remainder--;
+		}
+		hourseLine2 = addRemainingZeros(hourseLine2, 4);
+
+		return hourseLine1 + LINE_SEPERATOR + hourseLine2 + LINE_SEPERATOR;
+	}
+
+	private String processMinutes(int minutes) {
+		String minutesLine1 = "";
+		String minutesLine2 = "";
+		int quotient = minutes / 5;
+		int remainder = minutes % 5;
+		int counter = 1;
+		while (quotient != 0) {
+			if (counter == 3 || counter == 6 || counter == 9) {
+				minutesLine1 = minutesLine1 + "R";
+			} else {
+				minutesLine1 = minutesLine1 + "Y";
+			}
+			counter++;
+			quotient--;
+		}
+		minutesLine1 = addRemainingZeros(minutesLine1, 11);
+
+		while (remainder != 0) {
+			minutesLine2 = minutesLine2 + "Y";
+			remainder--;
+		}
+		minutesLine2 = addRemainingZeros(minutesLine2, 4);
+
+		return minutesLine1 + LINE_SEPERATOR + minutesLine2;
+	}
+
+	/**
+	 * This method will be used to add remaining time square as 'zero'.
+	 * 
+	 * @param timeString
+	 * @param rowLength
+	 * @return
+	 */
+	private String addRemainingZeros(String timeString, int rowLength) {
+		int timeLength = timeString.length();
+		for (int i = timeLength; i < rowLength; i++) {
+			timeString = timeString + "0";
+		}
+		return timeString;
+	}
+}
